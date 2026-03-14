@@ -124,19 +124,17 @@
 
 ### 🎁 第二步：运行安装脚本
 
-**脚本下载地址：**
-- 📦 **Gitee（推荐，国内速度快）：** https://gitee.com/chenniannian/xhs/blob/main/
-- 🌐 **GitHub：** https://github.com/chenniannian90/xhs/blob/main/
+**脚本下载地址：** 📦 **Gitee：** https://gitee.com/chenniannian/xhs
 
 **Windows 用户：**
 
-1. 下载 `install_claude_code.bat` 文件：https://gitee.com/chenniannian/xhs/blob/main/install_claude_code.bat
+1. 下载 `install_claude_code.bat`：https://gitee.com/chenniannian/xhs/raw/main/install_claude_code.bat
 2. 右键点击文件，选择"以管理员身份运行"
 3. 按照提示完成配置
 
 **Mac/Linux 用户：**
 
-1. 下载 `install_claude_code.sh` 文件：https://gitee.com/chenniannian/xhs/blob/main/install_claude_code.sh
+1. 下载 `install_claude_code.sh`：https://gitee.com/chenniannian/xhs/raw/main/install_claude_code.sh
 2. 打开终端，进入文件所在目录
 3. 运行脚本：
 ```bash
@@ -163,12 +161,13 @@ chmod +x install_claude_code.sh
 ### 🚀 第三步：启动使用
 
 **Windows 用户：**
-1. 进入你的项目目录
-2. 双击运行 `start_claude_code.bat`
-3. 或在终端输入：`claude`
+1. 下载 `start_claude_code.bat`：https://gitee.com/chenniannian/xhs/raw/main/start_claude_code.bat
+2. 将文件放到任意目录（项目目录或普通文件夹均可）
+3. 双击运行 `start_claude_code.bat`
+4. 或在终端输入：`claude`
 
 **Mac/Linux 用户：**
-1. 进入你的项目目录
+1. 进入任意目录（项目目录或普通文件夹均可）
 2. 在终端输入：`claude`
 
 ---
@@ -229,10 +228,6 @@ Claude Code 真的是：
 - skill 应用市场
 - 实战项目案例
 - 💡 **用 Claude Code 写小红书文章**（下次重点！）
-
-**🔗 相关链接：**
-- 📦 **Gitee 仓库（推荐）：** https://gitee.com/chenniannian/xhs
-- 🌐 **GitHub 仓库：** https://github.com/chenniannian90/xhs
 
 ---
 
