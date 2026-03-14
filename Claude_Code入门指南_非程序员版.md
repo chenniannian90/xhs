@@ -124,15 +124,19 @@
 
 ### 🎁 第二步：运行安装脚本
 
+**脚本下载地址：**
+- 📦 **Gitee（推荐，国内速度快）：** https://gitee.com/chenniannian/xhs/blob/main/
+- 🌐 **GitHub：** https://github.com/chenniannian90/xhs/blob/main/
+
 **Windows 用户：**
 
-1. 下载 `install_claude_code.bat` 文件
+1. 下载 `install_claude_code.bat` 文件：https://gitee.com/chenniannian/xhs/blob/main/install_claude_code.bat
 2. 右键点击文件，选择"以管理员身份运行"
 3. 按照提示完成配置
 
 **Mac/Linux 用户：**
 
-1. 下载 `install_claude_code.sh` 文件
+1. 下载 `install_claude_code.sh` 文件：https://gitee.com/chenniannian/xhs/blob/main/install_claude_code.sh
 2. 打开终端，进入文件所在目录
 3. 运行脚本：
 ```bash
@@ -225,6 +229,10 @@ Claude Code 真的是：
 - skill 应用市场
 - 实战项目案例
 - 💡 **用 Claude Code 写小红书文章**（下次重点！）
+
+**🔗 相关链接：**
+- 📦 **Gitee 仓库（推荐）：** https://gitee.com/chenniannian/xhs
+- 🌐 **GitHub 仓库：** https://github.com/chenniannian90/xhs
 
 ---
 
