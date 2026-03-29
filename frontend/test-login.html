@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Test Login</title>
+</head>
+<body>
+  <h1>测试登录</h1>
+  <button onclick="testLogin()">测试登录 API</button>
+  <button onclick="checkStorage()">检查存储</button>
+  <pre id="output"></pre>
+
+  <script>
+    async function testLogin() {
+      const output = document.getElementById('output');
+      output.textContent = '正在测试登录...\n';
+
+      try {
+        const response = await fetch('http://localhost:8080/api/v1/auth/login', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({
+            email: 'niannianchen71@gmail.com',
+            password: 'your-password'
+          })
+        });
+
+        const data = await response.json();
+        output.textContent += '\n响应状态: ' + response.status;
+        output.textContent += '\n响应数据:\n' + JSON.stringify(data, null, 2);
+
+        if (data.data) {
+          output.textContent += '\n\ndata.data 内容:\n' + JSON.stringify(data.data, null, 2);
+        }
+      } catch (error) {
+        output.textContent += '\n错误: ' + error.message;
+      }
+    }
+
+    function checkStorage() {
+      const output = document.getElementById('output');
+      const authData = localStorage.getItem('navhub-auth');
+      output.textContent = 'localStorage 内容:\n' + (authData || '（空）');
+      
+      if (authData) {
+        try {
+          const parsed = JSON.parse(authData);
+          output.textContent += '\n\n解析后的结构:\n' + JSON.stringify(parsed, null, 2);
+        } catch (e) {
+          output.textContent += '\n\n解析失败: ' + e.message;
+        }
+      }
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,263 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Zustand Storage Structure Test</title>
+  <style>
+    body {
+      font-family: 'Monaco', 'Menlo', monospace;
+      padding: 20px;
+      background: #1e1e1e;
+      color: #d4d4d4;
+    }
+    .section {
+      background: #252526;
+      border: 1px solid #3e3e42;
+      border-radius: 8px;
+      padding: 16px;
+      margin-bottom: 16px;
+    }
+    h2 {
+      color: #4ec9b0;
+      margin-top: 0;
+    }
+    pre {
+      background: #1e1e1e;
+      border: 1px solid #3e3e42;
+      border-radius: 4px;
+      padding: 12px;
+      overflow-x: auto;
+    }
+    .error { color: #f48771; }
+    .success { color: #89d185; }
+    .warning { color: #dcdcaa; }
+    .info { color: #4ec9b0; }
+    button {
+      background: #0e639c;
+      color: white;
+      border: none;
+      padding: 8px 16px;
+      border-radius: 4px;
+      cursor: pointer;
+      margin-right: 8px;
+    }
+    button:hover {
+      background: #1177bb;
+    }
+  </style>
+</head>
+<body>
+  <h1>🔍 NavHub 存储结构调试工具</h1>
+
+  <div class="section">
+    <h2>操作按钮</h2>
+    <button onclick="checkStorage()">��查存储结构</button>
+    <button onclick="simulateAuthStorage()">模拟认证存储</button>
+    <button onclick="testAPIInterceptor()">测试 API 拦截器逻辑</button>
+    <button onclick="clearStorage()">清除存储</button>
+  </div>
+
+  <div class="section">
+    <h2>localStorage 内容</h2>
+    <pre id="storage-content">点击"检查存储结构"按钮查看</pre>
+  </div>
+
+  <div class="section">
+    <h2>API 拦截器测试结果</h2>
+    <pre id="api-test">点击"测试 API 拦截器逻辑"按钮查看</pre>
+  </div>
+
+  <div class="section">
+    <h2>问题诊断</h2>
+    <pre id="diagnostics">点击"检查存储结构"按钮查看诊断结果</pre>
+  </div>
+
+  <script>
+    function checkStorage() {
+      const storageContent = document.getElementById('storage-content');
+      const diagnostics = document.getElementById('diagnostics');
+      const apiTest = document.getElementById('api-test');
+
+      // 检查所有 localStorage keys
+      const keys = Object.keys(localStorage);
+      let output = 'localStorage 中的所有 keys:\n\n';
+      keys.forEach(key => {
+        output += `📦 ${key}\n`;
+      });
+
+      if (keys.length === 0) {
+        output += '\n⚠️ localStorage 为空';
+        storageContent.textContent = output;
+        diagnostics.textContent = '❌ 未找到认证数据，请先登录或使用"模拟认证存储"';
+        return;
+      }
+
+      // 检查 navhub-auth
+      const authData = localStorage.getItem('navhub-auth');
+      if (!authData) {
+        output += '\n⚠️ 未找到 navhub-auth key';
+        storageContent.textContent = output;
+        diagnostics.textContent = '❌ 未找到 navhub-auth 数据';
+        return;
+      }
+
+      output += '\n📄 navhub-auth 原始内容:\n';
+      output += authData.substring(0, 200) + '...\n\n';
+
+      let parsed;
+      try {
+        parsed = JSON.parse(authData);
+        output += '✅ JSON 解析成功\n\n';
+
+        // 显示完整结构
+        output += '📊 完整数据结构:\n';
+        output += JSON.stringify(parsed, null, 2);
+
+        storageContent.textContent = output;
+
+        // 诊断
+        let diag = '🔍 诊断结果:\n\n';
+
+        // 检查不同的 token 路径
+        diag += '检查 token 存储路径:\n';
+        diag += `  parsed.token: ${formatValue(parsed.token)}\n`;
+        diag += `  parsed.state?.token: ${formatValue(parsed.state?.token)}\n`;
+        diag += `  parsed.state?.state?.token: ${formatValue(parsed.state?.state?.token)}\n\n`;
+
+        // 检查 user 数据
+        diag += '检查 user 数据:\n';
+        diag += `  parsed.user: ${parsed.user ? '✅ 存在' : '❌ null'}\n`;
+        if (parsed.user) {
+          diag += `    - username: ${parsed.user.username || '❌ 缺失'}\n`;
+          diag += `    - email: ${parsed.user.email || '❌ 缺失'}\n`;
+        }
+        diag += `  parsed.state?.user: ${parsed.state?.user ? '✅ 存在' : '❌ null'}\n\n`;
+
+        // 检查认证状态
+        diag += '检查认证状态:\n';
+        diag += `  parsed.isAuthenticated: ${formatValue(parsed.isAuthenticated)}\n`;
+        diag += `  parsed.state?.isAuthenticated: ${formatValue(parsed.state?.isAuthenticated)}\n\n`;
+
+        // API 拦截器兼容性
+        diag += '🔌 API 拦截器兼容性:\n';
+        const tokenFromAPIInterceptor = parsed.state?.token;
+        if (tokenFromAPIInterceptor) {
+          diag += `  ✅ api.ts 能读取到 token (通过 parsed.state.token)\n`;
+          diag += `  Token 长度: ${tokenFromAPIInterceptor.length} 字符\n`;
+        } else if (parsed.token) {
+          diag += `  ⚠️ api.ts 无法读取 token\n`;
+          diag += `  Token 在 parsed.token，但 api.ts 读取 parsed.state.token\n`;
+          diag += `  ❌ 这是结构不匹配问题！\n`;
+        } else {
+          diag += `  ❌ 未找到 token\n`;
+        }
+
+        diagnostics.textContent = diag;
+
+      } catch (e) {
+        output += '\n❌ JSON 解析失败:\n';
+        output += e.message;
+        storageContent.textContent = output;
+        diagnostics.textContent = '❌ 无法解析认证数据';
+      }
+    }
+
+    function simulateAuthStorage() {
+      const mockAuthData = {
+        state: {
+          user: {
+            id: 'test-user-id',
+            username: 'testuser',
+            email: 'test@example.com',
+            email_verified: false,
+            theme_preference: 'light',
+            created_at: new Date().toISOString(),
+            updated_at: new Date().toISOString()
+          },
+          token: 'mock-jwt-token-' + Math.random().toString(36).substring(7),
+          isAuthenticated: true
+        },
+        version: 0
+      };
+
+      localStorage.setItem('navhub-auth', JSON.stringify(mockAuthData));
+
+      const storageContent = document.getElementById('storage-content');
+      storageContent.textContent = '✅ 模拟数据已存储\n\n' + JSON.stringify(mockAuthData, null, 2);
+
+      const diagnostics = document.getElementById('diagnostics');
+      diagnostics.textContent = '✅ 模拟数据已创建，token 路径为: parsed.state.token';
+
+      checkStorage();
+    }
+
+    function testAPIInterceptor() {
+      const authData = localStorage.getItem('navhub-auth');
+      const apiTest = document.getElementById('api-test');
+
+      if (!authData) {
+        apiTest.textContent = '❌ localStorage 中没有 navhub-auth 数据';
+        return;
+      }
+
+      let auth;
+      try {
+        auth = JSON.parse(authData);
+      } catch (e) {
+        apiTest.textContent = '❌ 无法解析 navhub-auth: ' + e.message;
+        return;
+      }
+
+      let output = '📡 模拟 api.ts 拦截器逻辑:\n\n';
+      output += '```typescript\n';
+      output += '// api.ts 中的代码:\n';
+      output += 'const token = localStorage.getItem("navhub-auth");\n';
+      output += 'if (token) {\n';
+      output += '  const auth = JSON.parse(token);\n';
+      output += '  if (auth.state?.token) {\n';
+      output += '    config.headers.Authorization = `Bearer ${auth.state.token}`;\n';
+      output += '  }\n';
+      output += '}\n```\n\n';
+
+      output += '🔄 执行结果:\n';
+      const storedAuth = localStorage.getItem('navhub-auth');
+      const parsed = JSON.parse(storedAuth);
+
+      if (parsed.state?.token) {
+        output += `✅ auth.state.token 存在: "${parsed.state.token.substring(0, 20)}..."\n\n`;
+        output += '✅ Authorization header 会被设置:\n';
+        output += `   Authorization: Bearer ${parsed.state.token}`;
+      } else if (parsed.token) {
+        output += `⚠️ auth.token 存在: "${parsed.token.substring(0, 20)}..."\n\n`;
+        output += '❌ 但 auth.state.token 不存在\n\n';
+        output += '🚨 问题：API 拦截器读取 auth.state.token，但 token 在 auth.token\n';
+        output += '❌ Authorization header 不会被设置！';
+      } else {
+        output += '❌ 未找到 token（既不在 auth.token 也不在 auth.state.token）';
+      }
+
+      apiTest.textContent = output;
+    }
+
+    function clearStorage() {
+      localStorage.removeItem('navhub-auth');
+      document.getElementById('storage-content').textContent = '✅ 存储已清除';
+      document.getElementById('diagnostics').textContent = '';
+      document.getElementById('api-test').textContent = '';
+    }
+
+    function formatValue(value) {
+      if (value === undefined) return '⚠️ undefined';
+      if (value === null) return '❌ null';
+      if (typeof value === 'string') {
+        if (value.length > 30) {
+          return `"${value.substring(0, 30)}..."`;
+        }
+        return `"${value}"`;
+      }
+      return String(value);
+    }
+  </script>
+</body>
+</html>
