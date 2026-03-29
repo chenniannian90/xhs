@@ -28,36 +28,25 @@ export const useAuthStore = create<AuthStore>()(
       login: async (email, password) => {
         try {
           const response = await api.post('/auth/login', { email, password });
-          const { user, token } = response.data.data;
-
-          // Debug logging
-          console.log('✅ Login successful!');
-          console.log('  User:', user.username);
-          console.log('  Token:', token ? token.substring(0, 20) + '...' : 'null');
-
-          set({ user, token, isAuthenticated: true });
-
-          // Verify storage
-          setTimeout(() => {
-            const stored = localStorage.getItem('navhub-auth');
-            if (stored) {
-              const parsed = JSON.parse(stored);
-              console.log('💾 Stored in localStorage:');
-              console.log('  Has user:', !!parsed.state?.user);
-              console.log('  Has token:', !!parsed.state?.token);
-              console.log('  Is authenticated:', parsed.state?.isAuthenticated);
-            }
-          }, 100);
+          const data = response.data.data;
+          set({
+            user: data.user,
+            token: data.access_token,
+            isAuthenticated: true,
+          });
         } catch (error: any) {
-          console.error('❌ Login failed:', error);
-          throw new Error(error.response?.data?.message || '登录失败');
+          throw new Error(error.response?.data?.error || error.response?.data?.message || '登录失败');
         }
       },
       register: async (username, email, password) => {
         try {
           const response = await api.post('/auth/register', { username, email, password });
-          const { user, token } = response.data.data;
-          set({ user, token, isAuthenticated: true });
+          const data = response.data.data;
+          set({
+            user: data.user,
+            token: data.access_token,
+            isAuthenticated: true,
+          });
         } catch (error: any) {
           const errorData = error.response?.data;
           // Preserve full error structure for better UX
