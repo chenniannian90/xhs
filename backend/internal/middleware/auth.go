@@ -38,7 +38,7 @@ func Auth(authService *services.AuthService) gin.HandlerFunc {
 		}
 
 		// Set user context
-		c.Set("userID", claims.UserID)
+		c.Set("userID", claims.UserID.String())
 		c.Set("email", claims.Email)
 
 		c.Next()

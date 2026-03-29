@@ -39,22 +39,12 @@ api.interceptors.request.use(
         const authData = JSON.parse(authDataString);
         const token = getToken(authData);
 
-        // Debug logging
-        console.log('📡 API Request:', config.method?.toUpperCase(), config.url);
-        console.log('  Token found:', !!token);
-
         if (token) {
           config.headers.Authorization = `Bearer ${token}`;
-          console.log('  ✅ Authorization header set');
-        } else {
-          console.warn('  ❌ No token found in auth data');
-          console.log('  Auth data structure:', JSON.stringify(authData, null, 2).substring(0, 200));
         }
       } catch (error) {
         console.error('Failed to parse auth data:', error);
       }
-    } else {
-      console.log('📡 API Request:', config.method?.toUpperCase(), config.url, '(no auth data)');
     }
     return config;
   },
